@@ -40,8 +40,8 @@ function cceqr!(A::Matrix{R};
     
     # compute column permutation in cycles
 
-    cycle  = 0
-    mu     = 0.
+    cycle = 0
+    mu    = 0.
 
     while s < k
         cycle += 1
@@ -103,7 +103,7 @@ function cceqr!(A::Matrix{R};
 
             r, mu = threshold_reblock!(A, jpvt, s+t+1, n, gamma, thresh)
 
-            # if needed, re-blocking a second time to make sure we get
+            # if needed, re-block a second time to make sure we get
             # at least one new tracked column
 
             if r == 0

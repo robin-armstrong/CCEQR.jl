@@ -71,7 +71,7 @@ function threshold_reblock!(A::Matrix{R}, jpvt::Vector{T}, j_start::Int, j_end::
     m, n   = size(A)
     tmpcol = zeros(m)
     blk    = 0
-    maxut  = 0.
+    maxnrm = 0.
 
     for j = j_start:j_end
         if gamma[j] > thresh
@@ -90,11 +90,11 @@ function threshold_reblock!(A::Matrix{R}, jpvt::Vector{T}, j_start::Int, j_end::
             A[:,p]    = A[:,j]
             A[:,j]    = tmpcol
         else
-            maxut = max(maxut, gamma[j])
+            maxnrm = max(maxnrm, gamma[j])
         end
     end
 
-    return blk, maxut
+    return blk, maxnrm
 end
 
 ### Loops through the (:, j_start:j_end) block of A and moves r columns to the front, corresponding to the columns
