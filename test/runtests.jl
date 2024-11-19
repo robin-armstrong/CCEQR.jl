@@ -15,7 +15,7 @@ end
     p0  = qr(A, ColumnNorm()).p
 
     for k = 1:20
-        for rho in exp10.(range(-10, -.1, 10))
+        for rho in exp10.(range(-10, -.01, 10))
             for full in [true, false]
                 pstr = "parameters are: k = "*string(k)*", rho = "*string(rho)*", full = "*string(full)
                 
@@ -32,7 +32,7 @@ end
     p0  = qr(A, ColumnNorm()).p
 
     for k = 1:20
-        for rho in exp10.(range(-10, -.1, 10))
+        for rho in exp10.(range(-10, -.01, 10))
             for full in [true, false]
                 pstr = "parameters are: k = "*string(k)*", rho = "*string(rho)*", full = "*string(full)
                 
