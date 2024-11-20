@@ -15,8 +15,8 @@ function update_q!(T::AbstractMatrix{R}, V::Matrix{R}, F::Matrix{R}, tau::Vector
     # filling the (p:q, p:q) block of T
     
     for s = 1:(q-p+1)
-        i       = p+s-1
-        T[i, i] = tau[s]
+        i      = p+s-1
+        T[i,i]= tau[s]
         
         if i > p
             c      = view(T, p:(i-1), i)
@@ -24,7 +24,7 @@ function update_q!(T::AbstractMatrix{R}, V::Matrix{R}, F::Matrix{R}, tau::Vector
             V_new  = view(V, :, i)
             T_prev = UpperTriangular(view(T, p:(i-1), p:(i-1)))
 
-            mul!(c, V_prev', V_new, -tau[s], 0.)
+            mul!(c, V_prev', V_new, -tau[s], 0)
             lmul!(T_prev, c)
         end
     end
@@ -38,7 +38,7 @@ function update_q!(T::AbstractMatrix{R}, V::Matrix{R}, F::Matrix{R}, tau::Vector
         V1  = view(V, :, 1:(p-1))
         V2  = view(V, :, p:q)
 
-        mul!(T12, V1', V2, -1., 0.)
+        mul!(T12, V1', V2, -1, 0)
         lmul!(T11, T12)
         rmul!(T12, T22)
     end
@@ -57,10 +57,10 @@ function apply_qt!(A::Matrix{R}, V::Matrix{R}, T::Matrix{R}, p::Int, q::Int, r::
     W     = Matrix{R}(A[p:q, r:s]')
 
     rmul!(W, LowerTriangular(V1))
-    mul!(W, A2', V2, 1., 1.)
+    mul!(W, A2', V2, 1, 1)
     rmul!(W, UpperTriangular(T_sub))
-    mul!(A1, V1, W', -1., 1.)
-    mul!(A2, V2, W', -1., 1.)
+    mul!(A1, V1, W', -1, 1)
+    mul!(A2, V2, W', -1, 1)
 end
 
 ### Loops through the (:, j_start:j_end) block of A and moves all columns to the front that have squared norm exceeding threshold
@@ -106,7 +106,7 @@ function order_reblock!(A::Matrix{R}, jpvt::Vector{T}, j_start::Int, j_end::Int,
     tmpcol = zeros(m)
     gview  = view(gamma, j_start:j_end)
 
-    if r < j_end - j_start
+    if r < j_end-j_start+1
         samp = partialsortperm(gview, 1:(r+1), rev = true)
         g    = gview[samp[r+1]]
     else
