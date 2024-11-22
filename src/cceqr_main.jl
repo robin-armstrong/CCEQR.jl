@@ -81,7 +81,10 @@ function cceqr!(A::Matrix{R};
 
         # check to see if we've chosen enough skeleton columns
 
-        (s+c == k) && break
+        if s+c == k
+            s += c
+            break
+        end
 
         # determine a lower bound on the maximum column norm orthogonal
         # to the range of A[:, 1:(s+c)], starting by measuring residual
