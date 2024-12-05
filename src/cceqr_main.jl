@@ -24,12 +24,12 @@ function cceqr!(A::Matrix{R};
         throw(ArgumentError("rho must lie strictly between 0 and 1"))
     end
 
-    gamma = zeros(n)         # residual column norms
-    jpvt  = Array(1:n)       # column pivot vector
-    s     = 0                # number of skeleton columns chosen so far
-    t     = n                # number of currently tracked columns
-    V     = zeros(m, k)      # storage for Householder reflectors
-    T     = zeros(k, k)      # storage for T factor in compact WY representation
+    gamma = zeros(n)        # residual column norms
+    jpvt  = Array(1:n)      # column pivot vector
+    s     = 0               # number of skeleton columns chosen so far
+    t     = n               # number of currently tracked columns
+    V     = zeros(m, k)     # storage for Householder reflectors
+    T     = zeros(k, k)     # storage for T factor in compact WY representation
 
     avg_block = 0.
 
@@ -90,13 +90,12 @@ function cceqr!(A::Matrix{R};
         # to the range of A[:, 1:(s+c)], starting by measuring residual
         # norms in the block we just factorized.
 
-        thresh = 0.
-        
-        for j = (s+c+1):(s+t)
-            col       = view(A, (s+1):(s+c), j)
-            gamma[j] -= norm(col)^2
-            thresh    = max(thresh, gamma[j])
-        end
+        A_view    = view(A, (s+1):(s+c), (s+c+1):(s+t))
+        g_view    = view(gamma, (s+c+1):(s+t))
+        sqnorms   = norm.(eachcol(A_view))
+        sqnorms .*= sqnorms
+        g_view  .-= sqnorms
+        thresh    = maximum(g_view)
 
         s += c
         t -= c
@@ -117,20 +116,21 @@ function cceqr!(A::Matrix{R};
 
             (r > 0) && apply_qt!(A, V, T, 1, s, s+t+1, s+t+r)
 
-            for j = (s+t+1):(s+t+r)
-                col       = view(A, 1:s, j)
-                gamma[j] -= norm(col)^2
-            end
+            A_view    = view(A, 1:s, (s+t+1):(s+t+r))
+            g_view    = view(gamma, (s+t+1):(s+t+r))
+            sqnorms   = norm.(eachcol(A_view))
+            sqnorms .*= sqnorms
+            g_view  .-= sqnorms
 
             t  += r
         end
     end
 
     if full
-        apply_qt!(A, V, T, 1, s, s+t+1, n)
+        apply_qt!(A, V, T, 1, s, s+t, n)
     end
 
     avg_block /= cycle
 
-    return jpvt[1:k], cycle, avg_block, s+t
+    return jpvt, cycle, avg_block, s+t
 end

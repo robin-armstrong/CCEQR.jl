@@ -69,11 +69,45 @@ end
     
     for k = 1:20
         for t = 1:20
-            A = randn(rng, 20, 5000)
-            B = randn(rng, 5000, 20)
+            pstr = "parameters are k = "*string(k)
 
-            cceqr!(A, k = k, full = true)
-            cceqr!(B, k = k, full = true)
+            # setting up a short-wide test matrix
+
+            A     = randn(rng, 20, 5000)
+            A_cpy = deepcopy(A)
+
+            # forming the R factor with CCEQR
+
+            p, _, _, _ = cceqr!(A, k = k, full = true)
+
+            # forming the R factor from a "reference" k-step CPQR
+
+            qrp   = qr(A_cpy, ColumnNorm())
+            Q     = qr(A_cpy[:,qrp.p[1:k]]).Q
+            QtAp  = Q'*A_cpy[:,p]
+
+            # seeing if the R factors agree
+
+            showInfo(pstr, @test (norm(A - QtAp) < 10*norm(A)*eps()))
+
+            # setting up a tall-thin test matrix
+
+            B     = randn(rng, 5000, 20)
+            B_cpy = deepcopy(B)
+
+            # forming the R factor with CCEQR
+
+            p, _, _, _ = cceqr!(B, k = k, full = true)
+
+            # forming the R factor from a "reference" k-step CPQR
+
+            qrp   = qr(B_cpy, ColumnNorm())
+            Q     = qr(B_cpy[:,qrp.p[1:k]]).Q
+            QtBp  = Q'*B_cpy[:,p]
+
+            # seeing if the R factors agree
+
+            showInfo(pstr, @test (norm(B - QtBp) < 10*norm(B)*eps()))
         end
     end
 end
