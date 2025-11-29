@@ -1,6 +1,6 @@
 module CCEQR
 
-export cceqr!
+export cceqr!, cceqr
 
 include("cceqr_utils.jl")
 include("cceqr_main.jl")

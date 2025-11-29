@@ -1,17 +1,13 @@
 using LinearAlgebra
 
 """
-cceqr!(A; k = minimum(size(A)), rho = 1e-4, full = false)
+cceqr!(A; k = minimum(size(A)), rho = 1e-2, full = false)
 
-Compute the first `k` entries of the column permutation for a CPQR factorization
-of `A`, modifying `A` in place. Use a "collect, commit, expand" strategy with block
-proportion `rho`. If `full == true`, then apply Householder reflections to all
-columns yielding a complete `R` factor. Returns the column permutation, the number of
-cycles used, the average pivoting block size per cycle, and the final size of the tracked set.
+In-place variant of `cceqr` that saves time and memory by overwriting `A`.
 """
 function cceqr!(A::Matrix{R};
                 k::Int = minimum(size(A)),
-                rho::Real = 1e-4,
+                rho::Real = 1e-2,
                 full::Bool = false) where R <: Real
 
     m, n = size(A)
@@ -83,6 +79,7 @@ function cceqr!(A::Matrix{R};
 
         if s+c == k
             s += c
+            t -= c
             break
         end
 
@@ -127,10 +124,30 @@ function cceqr!(A::Matrix{R};
     end
 
     if full
-        apply_qt!(A, V, T, 1, s, s+t, n)
+        apply_qt!(A, V, T, 1, s, s+t+1, n)
     end
 
     avg_block /= cycle
 
     return jpvt, cycle, avg_block, s+t
+end
+
+"""
+cceqr(A; k = minimum(size(A)), rho = 1e-2, full = false)
+
+Compute the first `k` entries of the column permutation for a CPQR factorization
+of `A`. Use a "collect, commit, expand" strategy with block proportion `rho`. If
+`full == true`, then apply Householder reflections to all columns yielding a
+complete `R` factor. Returns the column permutation, the number of cycles used,
+the average pivoting block size per cycle, and the final size of the tracked set.
+
+See also `cceqr!`, the in-place version of this function, which may be faster.
+"""
+function cceqr(A::Matrix{R};
+               k::Int = minimum(size(A)),
+               rho::Real = 1e-2,
+               full::Bool = false) where R <: Real
+    
+    A_cpy = deepcopy(A)
+    return cceqr!(A_cpy, k = k, rho = rho, full = full)
 end

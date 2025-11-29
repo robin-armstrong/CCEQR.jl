@@ -1,7 +1,7 @@
 name = "CCEQR"
 uuid = "c98000fe-ed63-4dc9-8308-f43d7e5c4caa"
 authors = ["Robin Armstrong <rja243@cornell.edu>"]
-version = "1.0.0"
+version = "1.1.0"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
